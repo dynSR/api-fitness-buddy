@@ -17,14 +17,18 @@ public final class ExerciseFixture implements Fixture<Exercise> {
                 .build();
     }
 
+    /**
+     * This method is used to generate 6 different exercises.
+     * @return a list of exercice entities.
+     */
     @Override
     public List<Exercise> getMany() {
         List<Exercise> exercises = new ArrayList<>();
-        for (int i = 0; i <= 6; i++) {
+        for (int i = 0; i < 6; i++) {
             exercises.add(
                     Exercise.builder()
                             .id(null) // id is automatically generated
-                            .name(String.format("Exercise %s", i))
+                            .name(String.format("Exercise %d", i))
                             .build()
             );
         }

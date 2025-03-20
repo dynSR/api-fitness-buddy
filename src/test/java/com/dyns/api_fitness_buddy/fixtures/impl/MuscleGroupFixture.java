@@ -9,6 +9,7 @@ import java.util.*;
 @Component
 public final class MuscleGroupFixture implements Fixture<MuscleGroup> {
 
+    // Size of 13
     private final Set<String> MUSCLE_GROUPS = new HashSet<>(
             Arrays.asList(
                     "Traps", "Shoulders", "Chest", "Biceps", "Forearm", "Abs",
