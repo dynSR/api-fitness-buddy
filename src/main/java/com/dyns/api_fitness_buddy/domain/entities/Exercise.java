@@ -35,7 +35,7 @@ public class Exercise implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "exercise_id_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "exercises_id_seq")
     private Long id;
 
     @Column(length = 150, nullable = false)

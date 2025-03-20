@@ -27,14 +27,14 @@ import java.io.Serializable;
 @Builder
 @Entity
 @Table(name = "muscle_groups", uniqueConstraints = {
-        @UniqueConstraint(name = "UX_muscleGroups_name", columnNames = {"name"})
+        @UniqueConstraint(name = "UX_muscle_groups_name", columnNames = {"name"})
 })
 public class MuscleGroup implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "muscle_group_id_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "muscle_groups_id_seq")
     private Long id;
 
     @Column(length = 150, nullable = false)
