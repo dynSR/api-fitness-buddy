@@ -1,6 +1,5 @@
 package com.dyns.api_fitness_buddy.services.impl;
 
-import com.dyns.api_fitness_buddy.domain.dto.ExerciseDto;
 import com.dyns.api_fitness_buddy.domain.entities.Exercise;
 import com.dyns.api_fitness_buddy.repositories.ExerciseRepository;
 import com.dyns.api_fitness_buddy.services.ExerciseService;
@@ -28,8 +27,9 @@ public class ExerciseServiceImpl implements ExerciseService {
     @Override
     public List<Exercise> findAll() {
         return StreamSupport.stream(
-                        repository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
+                repository.findAll().spliterator(),
+                false
+        ).collect(Collectors.toList());
     }
 
     @Override
@@ -45,7 +45,12 @@ public class ExerciseServiceImpl implements ExerciseService {
             Optional.ofNullable(exercise.getName()).ifPresent(e::setName);
             repository.save(e);
             return e;
-        }).orElseThrow(() ->  new RuntimeException("Exercise does not exist."));
+        }).orElseThrow(() -> new RuntimeException("Exercise does not exist."));
+    }
+
+    @Override
+    public void delete(long id) {
+        repository.deleteById(id);
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.dyns.api_fitness_buddy.repositories;
 
 import com.dyns.api_fitness_buddy.domain.entities.Exercise;
 import com.dyns.api_fitness_buddy.fixtures.impl.ExerciseFixture;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,50 +34,65 @@ public class ExerciseRepositoryIntegrationTests {
         fixture = new ExerciseFixture();
     }
 
-    @Test
-    public void givenExercise_whenSaved_thenCanBeRetrieved() {
-        Exercise exercise = fixture.getOne();
+    @Nested
+    @DisplayName("Exercise Repository Save")
+    public class Save {
+        @Test
+        @DisplayName("Should persist and find back an exercise")
+        public void givenExercise_whenSaved_thenCanBeRetrieved() {
+            Exercise exercise = fixture.getOne();
 
-        underTest.save(exercise);
+            underTest.save(exercise);
 
-        Optional<Exercise> result = underTest.findById(exercise.getId());
-        assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(exercise);
-    }
+            Optional<Exercise> result = underTest.findById(exercise.getId());
+            assertThat(result).isPresent();
+            assertThat(result.get()).isEqualTo(exercise);
+        }
 
-    @Test
-    public void givenDuplicateExercise_whenSaved_thenThrowsDataIntegrityViolationException() {
-        Exercise exercise1 = fixture.getOne();
-        Exercise exercise2 = fixture.getOne();
+        @Test
+        @DisplayName("Should throw a data integrity violation exception when exercises have duplicate names")
+        public void givenDuplicateExercise_whenSaved_thenThrowsDataIntegrityViolationException() {
+            Exercise exercise1 = fixture.getOne();
+            Exercise exercise2 = fixture.getOne();
 
-        underTest.save(exercise1);
-        try {
-            underTest.save(exercise2);
-        } catch (DataIntegrityViolationException e) {
-            assertThat(e.getMessage()).contains("Unique index or primary key violation");
+            underTest.save(exercise1);
+            try {
+                underTest.save(exercise2);
+            } catch (DataIntegrityViolationException e) {
+                assertThat(e.getMessage()).contains("Unique index or primary key violation");
+            }
         }
     }
 
-    @Test
-    public void givenExercise_whenNameIsUpdated_thenNameIsPersisted() {
-        Exercise exercise = underTest.save(fixture.getOne());
-        assertThat(underTest.existsById(exercise.getId())).isTrue();
+    @Nested
+    @DisplayName("Exercise Repository Update")
+    public class Update {
+        @Test
+        public void givenExercise_whenNameIsUpdated_thenNameIsPersisted() {
+            Exercise exercise = underTest.save(fixture.getOne());
+            assertThat(underTest.existsById(exercise.getId())).isTrue();
 
-        String newName = "Updated";
-        exercise.setName(newName);
-        underTest.save(exercise);
+            String newName = "Updated";
+            exercise.setName(newName);
+            underTest.save(exercise);
 
-        Optional<Exercise> result = underTest.findById(exercise.getId());
-        assertThat(result).isPresent();
-        assertThat(result.get().getName()).isEqualTo(newName);
+            Optional<Exercise> result = underTest.findById(exercise.getId());
+            assertThat(result).isPresent();
+            assertThat(result.get().getName()).isEqualTo(newName);
+        }
     }
 
-    @Test
-    public void givenExercise_whenDeleted_thenItCannotBeFound() {
-        Exercise exercise = underTest.save(fixture.getOne());
-        assertThat(underTest.existsById(exercise.getId())).isTrue();
+    @Nested
+    @DisplayName("Exercise Repository Delete")
+    public class Delete {
+        @Test
+        @DisplayName("Should delete an exercise and should not be able to retrieve it after")
+        public void givenExercise_whenDeleted_thenItCannotBeFound() {
+            Exercise exercise = underTest.save(fixture.getOne());
+            assertThat(underTest.existsById(exercise.getId())).isTrue();
 
-        underTest.delete(exercise);
-        assertThat(underTest.existsById(exercise.getId())).isFalse();
+            underTest.delete(exercise);
+            assertThat(underTest.existsById(exercise.getId())).isFalse();
+        }
     }
 }

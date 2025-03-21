@@ -5,7 +5,6 @@ import com.dyns.api_fitness_buddy.fixtures.impl.ExerciseFixture;
 import com.dyns.api_fitness_buddy.services.ExerciseService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -47,7 +47,7 @@ public class ExerciseControllerIntegrationTests {
 
     @Nested
     @DisplayName("Create exercise")
-    class Create {
+    public class Create {
         private final Exercise exercise = fixture.getOne();
         private String exerciseAsJSON = "";
 
@@ -91,7 +91,7 @@ public class ExerciseControllerIntegrationTests {
 
     @Nested
     @DisplayName("Find all exercises")
-    class GetAll {
+    public class GetAll {
         private final List<Exercise> exercises = fixture.getMany();
 
         @BeforeEach
@@ -128,7 +128,7 @@ public class ExerciseControllerIntegrationTests {
 
     @Nested
     @DisplayName("Find one exercise")
-    class GetOne {
+    public class GetOne {
         private String uriTemplate = "";
 
         @BeforeEach
@@ -178,7 +178,7 @@ public class ExerciseControllerIntegrationTests {
 
     @Nested
     @DisplayName("Full update exercise")
-    class FullUpdate {
+    public class FullUpdate {
         protected String exerciseAsJSON = "";
         protected final String newName = "Updated";
         protected String uriTemplate = "";
@@ -186,7 +186,6 @@ public class ExerciseControllerIntegrationTests {
         @BeforeEach
         public void configureUpdateTests() throws JsonProcessingException {
             Exercise updatedExercise = fixture.getOne();
-            updatedExercise.setName(newName);
             service.save(updatedExercise);
 
             exerciseAsJSON = objectMapper.writeValueAsString(updatedExercise);
@@ -241,74 +240,71 @@ public class ExerciseControllerIntegrationTests {
 
     @Nested
     @DisplayName("Partial update exercise")
-    class PartialUpdate extends FullUpdate {
-//        private String exerciseAsJSON = "";
-//        private final String newName = "Partial update";
-//        private String uriTemplate = "";
-//
-//        @BeforeEach
-//        public void configureUpdateTests() throws JsonProcessingException {
-//            Exercise updatedExercise = fixture.getOne();
-//            updatedExercise.setName(newName);
-//            service.save(updatedExercise);
-//
-//            exerciseAsJSON = objectMapper.writeValueAsString(updatedExercise);
-//
-//            uriTemplate = apiPath + '/' + updatedExercise.getId();
-//        }
-//
-//        @Test
-//        @DisplayName("Should update an exercise and return HTTP status OK (200)")
-//        public void givenExercise_whenUpdated_thenReturnsHttpStatus200() throws Exception {
-//            mockMvc.perform(
-//                    put(uriTemplate)
-//                            .contentType(MediaType.APPLICATION_JSON)
-//                            .content(exerciseAsJSON)
-//            ).andExpect(status().isOk());
-//        }
-//
-//        @Test
-//        @DisplayName("Should update an exercise and return it as JSON")
-//        public void givenExercise_whenUpdated_thenReturnsTheExerciseAsJSON() throws Exception {
-//            mockMvc.perform(
-//                    put(uriTemplate)
-//                            .contentType(MediaType.APPLICATION_JSON)
-//                            .content(exerciseAsJSON)
-//            ).andExpect(
-//                    MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON)
-//            );
-//        }
-//
-//        @Test
-//        @DisplayName("Should be impossible to update and return HTTP status NOT_FOUND (404)")
-//        public void givenInvalidId_whenUpdated_thenReturnsHttpStatus404() throws Exception {
-//            // Note that the valid id provided before each test is 1.
-//            mockMvc.perform(
-//                    put(apiPath + "/2")
-//                            .contentType(MediaType.APPLICATION_JSON)
-//                            .content(exerciseAsJSON)
-//            ).andExpect(status().isNotFound());
-//        }
-//
-//        @Test
-//        @DisplayName("Should update an exercise and persist its new properties value")
-//        public void givenExercise_whenUpdated_thenReturnsTheExerciseWithValidInformation() throws Exception {
-//            mockMvc.perform(
-//                            put(uriTemplate)
-//                                    .contentType(MediaType.APPLICATION_JSON)
-//                                    .content(exerciseAsJSON)
-//                    ).andExpect(jsonPath("$.id").value(1))
-//                    .andExpect(jsonPath("$.name").value(newName));
-//        }
+    public class PartialUpdate {
+        private final String newName = "Updated";
+        private final Map<String, String> updatedProperty = Map.of("name", newName);
+        private String uriTemplate = "";
+
+        @BeforeEach
+        public void configureUpdateTests() throws JsonProcessingException {
+            Exercise updatedExercise = fixture.getOne();
+            service.save(updatedExercise);
+
+            uriTemplate = apiPath + '/' + updatedExercise.getId();
+        }
+
+        @Test
+        @DisplayName("Should update an exercise and return HTTP status OK (200)")
+        public void givenExerciseProperty_whenPartiallyUpdated_thenReturnsHttpStatus200() throws Exception {
+            mockMvc.perform(
+                    patch(uriTemplate)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updatedProperty))
+            ).andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("Should update an exercise and return it as JSON")
+        public void givenExerciseProperty_whenPartiallyUpdated_thenReturnsTheExerciseAsJSON() throws Exception {
+            mockMvc.perform(
+                    patch(uriTemplate)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updatedProperty))
+            ).andExpect(
+                    MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON)
+            );
+        }
+
+        @Test
+        @DisplayName("Should be impossible to update and return HTTP status NOT_FOUND (404)")
+        public void givenInvalidId_whenPartiallyUpdated_thenReturnsHttpStatus404() throws Exception {
+            // Note that the valid id provided before each test is 1.
+            mockMvc.perform(
+                    patch(apiPath + "/2")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updatedProperty))
+            ).andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("Should update an exercise and persist its new properties value")
+        public void givenExerciseProperty_whenPartiallyUpdated_thenReturnsTheExerciseWithValidInformation() throws Exception {
+            mockMvc.perform(
+                            patch(uriTemplate)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(updatedProperty))
+                    ).andExpect(jsonPath("$.id").value(1))
+                    .andExpect(jsonPath("$.name").value(newName));
+        }
     }
 
     @Nested
     @DisplayName("Delete exercise")
-    class Delete {
+    public class Delete {
         private String uriTemplate = "";
 
         @BeforeEach
-        public void configureUpdateTests() {
+        public void configureDeleteTests() {
             Exercise deletedExercise = fixture.getOne();
             service.save(deletedExercise);
 
@@ -330,7 +326,6 @@ public class ExerciseControllerIntegrationTests {
             mockMvc.perform(
                     delete(apiPath + "/2")
             ).andExpect(status().isNotFound());
-
         }
     }
 }

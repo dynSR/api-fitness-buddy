@@ -90,4 +90,14 @@ public class ExerciseController {
                 HttpStatus.OK
         );
     }
+
+    @DeleteMapping(path = "exercises/{id}")
+    public ResponseEntity<Void> remove(@PathVariable("id") long id) {
+        if (service.doesExist(id)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        service.delete(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
